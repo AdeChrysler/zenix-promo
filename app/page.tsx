@@ -173,10 +173,10 @@ export default function PromoPage() {
         <div className="mx-auto max-w-4xl">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {[
-              { icon: "\uD83D\uDD12", label: "Lifetime Access" },
-              { icon: "\uD83E\uDD16", label: "AI-Powered" },
-              { icon: "\uD83D\uDCB0", label: "ROI Guaranteed" },
-              { icon: "\u26A1", label: "Setup 5 Menit" },
+              { icon: "🔒", label: "Lifetime Access" },
+              { icon: "🤖", label: "AI-Powered" },
+              { icon: "💰", label: "ROI Guaranteed" },
+              { icon: "⚡", label: "Setup 5 Menit" },
             ].map((badge, i) => (
               <div
                 key={i}
@@ -334,10 +334,10 @@ export default function PromoPage() {
 
             <div className="mt-8 flex flex-col items-center gap-2 text-center text-sm text-gray-500">
               <p>
-                <span className="mr-1">\u23F0</span> Harga naik setelah 50 pendaftar
+                <span className="mr-1">⏰</span> Harga naik setelah 50 pendaftar
               </p>
               <p className="font-semibold text-blue-600">
-                <span className="mr-1">\uD83D\uDD25</span> Sisa 23 slot tersedia
+                <span className="mr-1">🔥</span> Sisa 23 slot tersedia
               </p>
             </div>
           </div>
@@ -467,7 +467,7 @@ export default function PromoPage() {
             </button>
 
             <p className="mt-4 text-center text-xs text-gray-400">
-              <span className="mr-1">\uD83D\uDD12</span> Data Anda aman &amp; terenkripsi
+              <span className="mr-1">🔒</span> Data Anda aman & terenkripsi
             </p>
           </form>
         </div>
@@ -477,7 +477,7 @@ export default function PromoPage() {
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-3xl">
-            \uD83D\uDEE1\uFE0F
+            🛡️
           </div>
           <h2 className="mb-3 text-2xl font-bold text-gray-900">7 Hari Money-Back Guarantee</h2>
           <p className="text-gray-500">
