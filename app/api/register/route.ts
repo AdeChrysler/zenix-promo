@@ -1,0 +1,92 @@
+import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
+
+const DATA_PATH = path.join(process.cwd(), "data", "registrations.json");
+
+function generateInvoiceNumber(): string {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let rand = "";
+  for (let i = 0; i < 4; i++) {
+    rand += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `INV-${y}${m}${d}-${rand}`;
+}
+
+function readRegistrations(): Array<Record<string, unknown>> {
+  try {
+    const raw = fs.readFileSync(DATA_PATH, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function writeRegistrations(data: Array<Record<string, unknown>>): void {
+  const dir = path.dirname(DATA_PATH);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { name, email, phone, paymentOption } = body;
+
+    if (!name || !email || !phone || !paymentOption) {
+      return NextResponse.json(
+        { success: false, error: "Semua field wajib diisi." },
+        { status: 400 }
+      );
+    }
+
+    if (paymentOption !== "full" && paymentOption !== "installment") {
+      return NextResponse.json(
+        { success: false, error: "Opsi pembayaran tidak valid." },
+        { status: 400 }
+      );
+    }
+
+    const invoiceNumber = generateInvoiceNumber();
+    const amount = paymentOption === "full" ? 4500000 : 2250000;
+    const createdAt = new Date().toISOString();
+
+    const registration = {
+      invoiceNumber,
+      name,
+      email,
+      phone: phone.startsWith("+62") ? phone : `+62${phone}`,
+      paymentOption,
+      amount,
+      totalAmount: 4500000,
+      status: "pending",
+      createdAt,
+    };
+
+    const registrations = readRegistrations();
+    registrations.push(registration);
+    writeRegistrations(registrations);
+
+    return NextResponse.json({
+      success: true,
+      invoiceNumber,
+      name,
+      email,
+      phone: registration.phone,
+      paymentOption,
+      amount,
+      redirectUrl: `/invoice/${invoiceNumber}`,
+    });
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Internal server error." },
+      { status: 500 }
+    );
+  }
+}
