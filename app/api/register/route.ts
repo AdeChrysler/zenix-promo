@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { createPayment } from "@/app/lib/ipaymu";
 
 const DATA_PATH = path.join(process.cwd(), "data", "registrations.json");
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://promo.zenova.id";
 
 function generateInvoiceNumber(): string {
   const now = new Date();
@@ -37,7 +39,7 @@ function writeRegistrations(data: Array<Record<string, unknown>>): void {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, paymentOption } = body;
+    const { name, email, phone, paymentOption, paymentMethod, paymentChannel } = body;
 
     if (!name || !email || !phone || !paymentOption) {
       return NextResponse.json(
@@ -53,21 +55,60 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const validMethods = ["qris", "va"];
+    const validChannels = ["qris", "bni", "bca", "mandiri"];
+    const method = validMethods.includes(paymentMethod) ? paymentMethod : "qris";
+    const channel = validChannels.includes(paymentChannel) ? paymentChannel : "qris";
+
     const invoiceNumber = generateInvoiceNumber();
     const amount = paymentOption === "full" ? 4500000 : 2250000;
     const createdAt = new Date().toISOString();
+    const phoneFormatted = phone.startsWith("+62") ? phone : `+62${phone}`;
 
-    const registration = {
+    // Create iPaymu payment
+    let paymentData;
+    try {
+      paymentData = await createPayment({
+        referenceId: invoiceNumber,
+        amount,
+        productName: "Zenix.id Lifetime Access",
+        buyerName: name,
+        buyerEmail: email,
+        buyerPhone: phoneFormatted,
+        paymentMethod: method,
+        paymentChannel: channel,
+        notifyUrl: `${APP_URL}/api/webhook/ipaymu`,
+        returnUrl: `${APP_URL}/invoice/${invoiceNumber}`,
+      });
+    } catch (err) {
+      console.error("[Register] iPaymu error:", err);
+      // Save registration even if payment creation fails
+      paymentData = null;
+    }
+
+    const registration: Record<string, unknown> = {
       invoiceNumber,
       name,
       email,
-      phone: phone.startsWith("+62") ? phone : `+62${phone}`,
+      phone: phoneFormatted,
       paymentOption,
+      paymentMethod: method,
+      paymentChannel: channel,
       amount,
       totalAmount: 4500000,
       status: "pending",
       createdAt,
     };
+
+    if (paymentData) {
+      registration.transactionId = paymentData.transactionId;
+      registration.paymentNo = paymentData.paymentNo;
+      registration.paymentName = paymentData.paymentName;
+      registration.paymentExpired = paymentData.expired;
+      registration.qrisUrl = paymentData.qrisUrl;
+      registration.qrString = paymentData.qrString;
+      registration.paymentTotal = paymentData.total;
+    }
 
     const registrations = readRegistrations();
     registrations.push(registration);
@@ -78,10 +119,13 @@ export async function POST(request: NextRequest) {
       invoiceNumber,
       name,
       email,
-      phone: registration.phone,
+      phone: phoneFormatted,
       paymentOption,
+      paymentMethod: method,
+      paymentChannel: channel,
       amount,
       redirectUrl: `/invoice/${invoiceNumber}`,
+      payment: paymentData || null,
     });
   } catch {
     return NextResponse.json(
