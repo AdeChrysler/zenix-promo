@@ -99,7 +99,7 @@ export async function createPayment(params: {
     paymentNo: data.Data.PaymentNo,
     paymentName: data.Data.PaymentName,
     expired: data.Data.Expired,
-    qrisUrl: data.Data.QrImage || data.Data.QrTemplate || data.Data.QrUrl || qrDataUrl || null,
+    qrisUrl: qrDataUrl || null, // always use server-generated QR (iPaymu returns HTML pages, not images)
     qrString: data.Data.QrString || null,
     total: data.Data.Total,
   };
