@@ -166,15 +166,20 @@ export default function InvoicePage() {
   const isPaid = invoice.status === "paid";
   const isQris = invoice.paymentMethod === "qris" || invoice.paymentChannel === "qris";
 
-  // QRIS QR resolution: handle qrisUrl, qrString, or raw QRIS data in paymentNo
-  const qrData = invoice.qrisUrl || invoice.qrString || (invoice.paymentNo && invoice.paymentNo.length > 50 ? invoice.paymentNo : null);
-  const isUrl = qrData?.startsWith("http");
-  const qrImageUrl = qrData
-    ? (isUrl ? qrData : `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`)
-    : null;
+  // QRIS QR resolution: try all possible sources for QR data
+  const rawQrData = invoice.qrisUrl || invoice.qrString || (isQris ? invoice.paymentNo : null);
+  let qrImageUrl: string | null = null;
+  if (rawQrData) {
+    if (rawQrData.startsWith("http")) {
+      qrImageUrl = rawQrData;
+    } else {
+      // Raw QRIS string — generate QR image from it
+      qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(rawQrData)}`;
+    }
+  }
 
-  // Hide paymentNo if it's a QRIS raw string (>50 chars)
-  const showPaymentNo = invoice.paymentNo && invoice.paymentNo.length <= 50;
+  // Hide paymentNo if it's a QRIS raw string (>30 chars means it's not a VA number)
+  const showPaymentNo = invoice.paymentNo && invoice.paymentNo.length <= 30 && !isQris;
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-blue-50 px-4 py-12 sm:px-6 lg:px-8">
@@ -200,7 +205,7 @@ export default function InvoicePage() {
                 <p className="mb-3 text-sm text-green-500">Welcome to Zenix.id!</p>
               )}
               <a
-                href="https://wa.me/6281234567890?text=Halo%2C%20saya%20sudah%20bayar%20Zenix.id.%20Minta%20link%20akses%20ya."
+                href="https://wa.me/6288988988918?text=Halo%2C%20saya%20sudah%20bayar%20Zenix.id.%20Minta%20link%20akses%20ya."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block rounded-lg bg-green-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-green-600"
@@ -240,7 +245,7 @@ export default function InvoicePage() {
             {invoice.paymentOption === "full" ? (
               <div className="flex justify-between text-sm">
                 <div>
-                  <p className="font-medium text-gray-900">Zenix.id Lifetime Access</p>
+                  <p className="font-medium text-gray-900">Zenix.id 3 Bulan Access</p>
                   <p className="text-xs text-gray-500">Full Payment</p>
                 </div>
                 <p className="font-semibold text-gray-900">{formatCurrency(4500000)}</p>
@@ -248,7 +253,7 @@ export default function InvoicePage() {
             ) : (
               <div className="space-y-3 text-sm">
                 <div>
-                  <p className="mb-2 font-medium text-gray-900">Zenix.id Lifetime Access</p>
+                  <p className="mb-2 font-medium text-gray-900">Zenix.id 3 Bulan Access</p>
                   <div className="flex justify-between">
                     <p className="text-gray-600">Cicilan 1/2</p>
                     <p className="font-semibold text-gray-900">{formatCurrency(2250000)}</p>
@@ -355,19 +360,27 @@ export default function InvoicePage() {
             </div>
           )}
 
+          {/* Download PDF */}
+          <button
+            onClick={() => window.print()}
+            className="mb-3 block w-full rounded-xl border border-blue-200 bg-blue-50 py-3.5 text-center font-semibold text-blue-600 transition hover:bg-blue-100 print:hidden"
+          >
+            📄 Download Invoice PDF
+          </button>
+
           {/* WhatsApp */}
           <a
-            href={`https://wa.me/6281234567890?text=${encodeURIComponent(`Konfirmasi pembayaran ${invoice.invoiceNumber}`)}`}
+            href={`https://wa.me/6288988988918?text=${encodeURIComponent(`Konfirmasi pembayaran ${invoice.invoiceNumber}`)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mb-4 block w-full rounded-xl bg-[#25d366] py-3.5 text-center font-semibold text-white transition hover:bg-[#20bd5a]"
+            className="mb-4 block w-full rounded-xl bg-[#25d366] py-3.5 text-center font-semibold text-white transition hover:bg-[#20bd5a] print:hidden"
           >
             WhatsApp Support
           </a>
 
           <a
             href="/"
-            className="block text-center text-sm text-gray-500 hover:text-blue-600"
+            className="block text-center text-sm text-gray-500 hover:text-blue-600 print:hidden"
           >
             Kembali ke halaman utama
           </a>

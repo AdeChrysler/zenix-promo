@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       paymentData = await createPayment({
         referenceId: invoiceNumber,
         amount,
-        productName: "Zenix.id Lifetime Access",
+        productName: "Zenix.id 3 Bulan Access",
         buyerName: name,
         buyerEmail: email,
         buyerPhone: phoneFormatted,

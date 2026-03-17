@@ -61,7 +61,7 @@ const faqs = [
   },
   {
     q: "Apakah ini bayar bulanan?",
-    a: "Tidak. Ini pembayaran lifetime access. Bayar sekali, akses selamanya. Termasuk semua update di masa depan.",
+    a: "Tidak, ini bukan langganan bulanan. Bayar sekali Rp 4.5 juta, akses penuh selama 3 bulan. Termasuk semua update selama periode aktif.",
   },
   {
     q: "Bagaimana cara bayar?",
@@ -173,7 +173,7 @@ export default function PromoPage() {
         <div className="mx-auto max-w-4xl">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {[
-              { icon: "🔒", label: "Lifetime Access" },
+              { icon: "🔒", label: "3 Bulan Access" },
               { icon: "🤖", label: "AI-Powered" },
               { icon: "💰", label: "ROI Guaranteed" },
               { icon: "⚡", label: "Setup 5 Menit" },
@@ -286,15 +286,15 @@ export default function PromoPage() {
                   BEST VALUE
                 </div>
                 <h3 className="mb-1 text-xl font-bold text-gray-900">Full Payment</h3>
-                <p className="mb-4 text-sm text-gray-500">Bayar sekali, akses selamanya</p>
+                <p className="mb-4 text-sm text-gray-500">Bayar sekali, akses 3 bulan penuh</p>
                 <div className="mb-1 text-4xl font-extrabold text-gray-900">Rp 4.500.000</div>
                 <p className="mb-6 text-sm text-blue-600">Hemat Rp 500.000</p>
                 <ul className="space-y-2 text-sm text-gray-600">
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">&#10003;</span> Lifetime access semua fitur
+                    <span className="text-blue-500">&#10003;</span> Akses 3 bulan semua fitur
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">&#10003;</span> Free update selamanya
+                    <span className="text-blue-500">&#10003;</span> Free update selama 3 bulan
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-blue-500">&#10003;</span> Priority support
@@ -320,10 +320,10 @@ export default function PromoPage() {
                 <p className="mb-6 text-sm text-gray-500">Total: Rp 4.500.000</p>
                 <ul className="space-y-2 text-sm text-gray-600">
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">&#10003;</span> Lifetime access semua fitur
+                    <span className="text-blue-500">&#10003;</span> Akses 3 bulan semua fitur
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">&#10003;</span> Free update selamanya
+                    <span className="text-blue-500">&#10003;</span> Free update selama 3 bulan
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-blue-500">&#10003;</span> Priority support
@@ -533,7 +533,7 @@ export default function PromoPage() {
           &copy; 2026 Zenix.id &mdash; PT Zenova Digital Indonesia
         </p>
         <a
-          href="https://wa.me/6281234567890"
+          href="https://wa.me/6288988988918"
           className="mt-2 inline-block text-sm text-blue-600 hover:underline"
         >
           Hubungi via WhatsApp
