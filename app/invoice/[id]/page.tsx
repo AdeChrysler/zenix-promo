@@ -166,19 +166,17 @@ export default function InvoicePage() {
   const isPaid = invoice.status === "paid";
   const isQris = invoice.paymentMethod === "qris" || invoice.paymentChannel === "qris";
 
-  // QRIS QR resolution: try all possible sources for QR data
-  const rawQrData = invoice.qrisUrl || invoice.qrString || (isQris ? invoice.paymentNo : null);
+  // QR image: server generates data URL, or fallback to qrserver.com
+  const rawQrSource = invoice.qrisUrl || invoice.qrString || (isQris ? invoice.paymentNo : null);
   let qrImageUrl: string | null = null;
-  if (rawQrData) {
-    if (rawQrData.startsWith("http")) {
-      qrImageUrl = rawQrData;
+  if (rawQrSource) {
+    if (rawQrSource.startsWith("data:") || rawQrSource.startsWith("http")) {
+      qrImageUrl = rawQrSource;
     } else {
-      // Raw QRIS string — generate QR image from it
-      qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(rawQrData)}`;
+      qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(rawQrSource)}`;
     }
   }
 
-  // Hide paymentNo if it's a QRIS raw string (>30 chars means it's not a VA number)
   const showPaymentNo = invoice.paymentNo && invoice.paymentNo.length <= 30 && !isQris;
 
   return (

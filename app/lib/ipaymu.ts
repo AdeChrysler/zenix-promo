@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const QRCode = require('qrcode');
 
 interface IPaymuConfig {
   va: string;
@@ -73,8 +75,23 @@ export async function createPayment(params: {
   });
 
   const data = await response.json();
+
+  console.log('[ipaymu] Full response:', JSON.stringify(data, null, 2));
+
   if (!response.ok || data.Status !== 200) {
     throw new Error(data.Message || 'Payment creation failed');
+  }
+
+  // For QRIS: generate QR code image server-side from the raw QRIS string
+  let qrDataUrl: string | null = null;
+  const qrisRawString = data.Data.QrString || data.Data.PaymentNo;
+  if (params.paymentMethod === 'qris' && qrisRawString && qrisRawString.length > 30) {
+    try {
+      qrDataUrl = await QRCode.toDataURL(qrisRawString, { width: 300, margin: 2 }) as string;
+      console.log('[ipaymu] Generated QR data URL, length:', qrDataUrl?.length);
+    } catch (qrErr) {
+      console.error('[ipaymu] QR generation failed:', qrErr);
+    }
   }
 
   return {
@@ -82,7 +99,7 @@ export async function createPayment(params: {
     paymentNo: data.Data.PaymentNo,
     paymentName: data.Data.PaymentName,
     expired: data.Data.Expired,
-    qrisUrl: data.Data.QrImage || data.Data.QrTemplate || data.Data.QrUrl || null,
+    qrisUrl: data.Data.QrImage || data.Data.QrTemplate || data.Data.QrUrl || qrDataUrl || null,
     qrString: data.Data.QrString || null,
     total: data.Data.Total,
   };
